@@ -1,4 +1,5 @@
 import sys
+
 import pygame
 
 pygame.init()
@@ -11,6 +12,7 @@ print("Starting game with resolution: {}x{}".format(WIDTH, HEIGHT))
 screen.fill((0, 255, 0))
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 14)
+font2 = pygame.font.SysFont("Arial", 75)
 
 max_fps = 60
 
@@ -24,9 +26,18 @@ def exit_window():
     sys.exit()
 
 
-def render_fps(fps):
-    fps_text = font.render(str(fps), False, (255, 0, 0))
-    screen.blit(fps_text, (0, 0))
+def render_text1(text_a, x, y):
+    text_rendered = font.render(str(text_a), False, (255, 0, 0))
+    screen.blit(text_rendered, (x, y))
+
+
+def render_text2(text_a, x, y, bo):
+    if bo:
+        text_rendered = font2.render(str(text_a), False, (255, 127, 0))
+        screen.blit(text_rendered, (x, y))
+    else:
+        text_rendered = font2.render(str(text_a), False, (0, 255, 0))
+        screen.blit(text_rendered, (x, y))
 
 
 def render_player():
@@ -43,24 +54,70 @@ def move_y(modifier):
         player.y += modifier
 
 
-while True:
-    clock.tick(max_fps)
-    screen.fill((0, 0, 0))
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                exit_window()
+def game_panel():
+    selected = 0
+    max_options = 2
+    while True:
+        clock.tick(max_fps)
+        screen.fill((0, 0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    exit_window()
+                if event.key == pygame.K_s:
+                    if selected < max_options:
+                        selected += 1
+                if event.key == pygame.K_z:
+                    if selected > 0:
+                        selected -= 1
+                if event.key == pygame.K_RETURN:
+                    if selected == 0:
+                        game()
+                    if selected == 1:
+                        pass
+                    if selected == 2:
+                        exit_window()
 
-    key = pygame.key.get_pressed()
-    if key[pygame.K_z]:
-        move_y(-5)
-    if key[pygame.K_q]:
-        move_x(-5)
-    if key[pygame.K_s]:
-        move_y(5)
-    if key[pygame.K_d]:
-        move_x(5)
+        render_text1(int(clock.get_fps()), 0, 0)
+        if selected == 0:
+            render_text2(">>>> FeedMeFast", 100, 100, True)
+        else:
+            render_text2("FeedMeFast", 100, 100, False)
+        if selected == 1:
+            render_text2(">>>> Crédits", 100, 200, True)
+        else:
+            render_text2("Crédits", 100, 200, False)
+        if selected == 2:
+            render_text2(">>>> Quitter", 100, 300, True)
+        else:
+            render_text2("Quitter", 100, 300, False)
 
-    render_player()
-    render_fps(int(clock.get_fps()))
-    pygame.display.update()
+        pygame.display.update()
+
+
+def game():
+    while True:
+        clock.tick(max_fps)
+        screen.fill((0, 0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    game_panel()
+
+        key = pygame.key.get_pressed()
+        if key[pygame.K_z]:
+            move_y(-5)
+        if key[pygame.K_q]:
+            move_x(-5)
+        if key[pygame.K_s]:
+            move_y(5)
+        if key[pygame.K_d]:
+            move_x(5)
+
+        render_player()
+        render_text1(int(clock.get_fps()), 0, 0)
+
+        pygame.display.update()
+
+
+game_panel()
