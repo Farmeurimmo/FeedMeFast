@@ -1,3 +1,4 @@
+import random
 import sys
 
 import pygame
@@ -14,11 +15,16 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 14)
 font2 = pygame.font.SysFont("Arial", 75)
 
+radius_check = 35
+speed = 7
+size = 10
 max_fps = 60
 
 mainsurface.blit(pygame.transform.scale(screen, (WIDTH, HEIGHT)), (0, 0))
 
-player = pygame.Rect(0, 0, 60, 60)
+player = pygame.Rect(0, 0, size, size)
+
+food = []
 
 
 def exit_window():
@@ -52,6 +58,23 @@ def move_x(modifier):
 def move_y(modifier):
     if HEIGHT >= player.y + modifier + player.height >= player.height:
         player.y += modifier
+
+
+def spawn_food_random():
+    x = random.randint(0, WIDTH)
+    y = random.randint(0, HEIGHT)
+    food.append((x, y))
+
+
+def is_food_in_radius():
+    check_rad = int(radius_check / (size / 3))
+    for e in food:
+        x = e[0]
+        y = e[1]
+        if player.centerx - check_rad <= x <= player.centerx + check_rad:
+            if player.centery - check_rad <= y <= player.centery + check_rad:
+                food.remove(e)
+                return True
 
 
 def game_panel():
@@ -96,6 +119,7 @@ def game_panel():
 
 
 def game():
+    food_eated = 0
     while True:
         clock.tick(max_fps)
         screen.fill((0, 0, 0))
@@ -106,16 +130,27 @@ def game():
 
         key = pygame.key.get_pressed()
         if key[pygame.K_z]:
-            move_y(-5)
+            move_y(-speed)
         if key[pygame.K_q]:
-            move_x(-5)
+            move_x(-speed)
         if key[pygame.K_s]:
-            move_y(5)
+            move_y(speed)
         if key[pygame.K_d]:
-            move_x(5)
+            move_x(speed)
+
+        if is_food_in_radius():
+            food_eated += 1
 
         render_player()
         render_text1(int(clock.get_fps()), 0, 0)
+        render_text1(food_eated, 25, 0)
+
+        for e in food:
+            x = e[0]
+            y = e[1]
+            pygame.draw.rect(screen, (196, 127, 0), pygame.Rect(x, y, int(size / 2), int(size / 2)))
+
+        spawn_food_random()
 
         pygame.display.update()
 
