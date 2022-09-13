@@ -113,7 +113,7 @@ def game_panel():
 def game():
     food_eated = 0
     speed = 7
-    size_player = 10
+    size_player = 30
     player = pygame.Rect(0, 0, size_player, size_player)
     food = []
     last_spawn = 0
@@ -140,9 +140,10 @@ def game():
             size_player += 1
             player.width += 1
             player.height += 1
-            if food.__sizeof__().__int__() <= 1:
-                spawn_food_random(food)
-                last_spawn = 0
+
+        if len(food) < 1:
+            spawn_food_random(food)
+            last_spawn = 0
 
         render_player(player)
         render_text1(int(clock.get_fps()), 0, 0)
@@ -153,7 +154,7 @@ def game():
             y = e[1]
             pygame.draw.rect(screen, (196, 127, 0), pygame.Rect(x, y, int(size_player / 2), int(size_player / 2)))
 
-        if last_spawn >= max_fps * 2.5:
+        if last_spawn >= max_fps * 4:
             spawn_food_random(food)
             last_spawn = 0
         last_spawn += 1
