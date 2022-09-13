@@ -1,6 +1,5 @@
 import random
 import sys
-
 import pygame
 
 pygame.init()
@@ -15,16 +14,9 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 14)
 font2 = pygame.font.SysFont("Arial", 75)
 
-radius_check = 35
-speed = 7
-size = 10
 max_fps = 60
 
 mainsurface.blit(pygame.transform.scale(screen, (WIDTH, HEIGHT)), (0, 0))
-
-player = pygame.Rect(0, 0, size, size)
-
-food = []
 
 
 def exit_window():
@@ -46,28 +38,28 @@ def render_text2(text_a, x, y, bo):
         screen.blit(text_rendered, (x, y))
 
 
-def render_player():
+def render_player(player):
     pygame.draw.rect(screen, (255, 0, 0), player)
 
 
-def move_x(modifier):
+def move_x(modifier, player):
     if WIDTH >= player.x + modifier + player.width >= player.width:
         player.x += modifier
 
 
-def move_y(modifier):
+def move_y(modifier, player):
     if HEIGHT >= player.y + modifier + player.height >= player.height:
         player.y += modifier
 
 
-def spawn_food_random():
+def spawn_food_random(food):
     x = random.randint(0, WIDTH)
     y = random.randint(0, HEIGHT)
     food.append((x, y))
 
 
-def is_food_in_radius():
-    check_rad = int(radius_check / (size / 3))
+def is_food_in_radius(player, food, size_player):
+    check_rad = int(size_player)
     for e in food:
         x = e[0]
         y = e[1]
@@ -120,6 +112,11 @@ def game_panel():
 
 def game():
     food_eated = 0
+    speed = 7
+    size_player = 10
+    player = pygame.Rect(0, 0, size_player, size_player)
+    food = []
+    last_spawn = 0
     while True:
         clock.tick(max_fps)
         screen.fill((0, 0, 0))
@@ -130,27 +127,36 @@ def game():
 
         key = pygame.key.get_pressed()
         if key[pygame.K_z]:
-            move_y(-speed)
+            move_y(-speed, player)
         if key[pygame.K_q]:
-            move_x(-speed)
+            move_x(-speed, player)
         if key[pygame.K_s]:
-            move_y(speed)
+            move_y(speed, player)
         if key[pygame.K_d]:
-            move_x(speed)
+            move_x(speed, player)
 
-        if is_food_in_radius():
+        if is_food_in_radius(player, food, size_player):
             food_eated += 1
+            size_player += 1
+            player.width += 1
+            player.height += 1
+            if food.__sizeof__().__int__() <= 1:
+                spawn_food_random(food)
+                last_spawn = 0
 
-        render_player()
+        render_player(player)
         render_text1(int(clock.get_fps()), 0, 0)
         render_text1(food_eated, 25, 0)
 
         for e in food:
             x = e[0]
             y = e[1]
-            pygame.draw.rect(screen, (196, 127, 0), pygame.Rect(x, y, int(size / 2), int(size / 2)))
+            pygame.draw.rect(screen, (196, 127, 0), pygame.Rect(x, y, int(size_player / 2), int(size_player / 2)))
 
-        spawn_food_random()
+        if last_spawn >= max_fps * 2.5:
+            spawn_food_random(food)
+            last_spawn = 0
+        last_spawn += 1
 
         pygame.display.update()
 
