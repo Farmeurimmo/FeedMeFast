@@ -74,7 +74,7 @@ def is_food_in_radius(player, food, size_player):
 
 def game_panel():
     selected = 0
-    max_options = 2
+    max_options = 3
     while True:
         clock.tick(max_fps)
         screen.fill((0, 0, 0))
@@ -94,6 +94,8 @@ def game_panel():
                     if selected == 1:
                         pass
                     if selected == 2:
+                        pass
+                    if selected == 3:
                         exit_window()
 
         render_text1(int(clock.get_fps()), 0, 0)
@@ -102,13 +104,17 @@ def game_panel():
         else:
             render_text2("FeedMeFast", 100, 100, False)
         if selected == 1:
-            render_text2(">>>> Crédits", 100, 200, True)
+            render_text2(">>>> Settings", 100, 200, True)
         else:
-            render_text2("Crédits", 100, 200, False)
+            render_text2("Settings", 100, 200, False)
         if selected == 2:
-            render_text2(">>>> Quitter", 100, 300, True)
+            render_text2(">>>> Credits", 100, 300, True)
         else:
-            render_text2("Quitter", 100, 300, False)
+            render_text2("Credits", 100, 300, False)
+        if selected == 3:
+            render_text2(">>>> Quitter", 100, 400, True)
+        else:
+            render_text2("Quitter", 100, 400, False)
 
         pygame.display.update()
 
@@ -124,6 +130,7 @@ def game():
     last_r = time.time()
     while True:
         clock.tick(max_fps)
+        speed = food_level/20
         screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -133,26 +140,27 @@ def game():
         key = pygame.key.get_pressed()
         if key[pygame.K_z] or key[pygame.K_UP]:
             move_y(-speed, player)
+            food_level -= 0.10
         if key[pygame.K_q] or key[pygame.K_LEFT]:
             move_x(-speed, player)
+            food_level -= 0.10
         if key[pygame.K_s] or key[pygame.K_DOWN]:
             move_y(speed, player)
+            food_level -= 0.10
         if key[pygame.K_d] or key[pygame.K_RIGHT]:
             move_x(speed, player)
+            food_level -= 0.10
 
         if is_food_in_radius(player, food, size_player):
             food_eated += 1
-            size_player += 1
-            player.width += 1
-            player.height += 1
-            food_level += food_bar/30
+            food_level += food_bar/10
 
         if len(food) < 1:
             spawn_food_random(food)
             last_spawn = 0
 
-        if time.time() > last_r + 0.25:
-            food_level -= 1
+        if time.time() > last_r + 0.75:
+            food_level -= 5
             last_r = time.time()
             if food_level < 0:
                 game_panel()
@@ -169,7 +177,7 @@ def game():
             y = e[1]
             pygame.draw.rect(screen, (196, 127, 0), pygame.Rect(x, y, int(size_player / 2), int(size_player / 2)))
 
-        if last_spawn >= max_fps * 2.5:
+        if last_spawn >= max_fps * 4:
             spawn_food_random(food)
             last_spawn = 0
         last_spawn += 1
